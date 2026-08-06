@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NASCAR Manufacturer Competitive Balance Index, 1949–2016</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Archivo:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --asphalt: #14161B;
+    --asphalt-2: #1B1E25;
+    --panel: #20232B;
+    --line: #34394450;
+    --paper: #F0EDE4;
+    --paper-dim: #B9B6AC;
+    --paper-faint: #7C7A73;
+    --amber: #E8A93B;
+    --amber-dim: #7A5D24;
+    --red: #C4432E;
+    --green: #6E9B6A;
+    --chevy: #E8A93B;
+    --ford: #4F8FC0;
+    --other: #7C7A73;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 500px at 15% -10%, #23262E 0%, transparent 60%),
+      var(--asphalt);
+    color: var(--paper);
+    font-family: 'Archivo', sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px; margin:0 auto; padding: 0 28px 100px;}
+
+  /* Hero */
+  .hero{
+    padding: 74px 0 40px;
+    border-bottom: 1px solid var(--line);
+    position:relative;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color: var(--amber);
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:22px; height:2px; background: var(--amber);
+    display:inline-block;
+  }
+  h1{
+    font-family:'Oswald', sans-serif;
+    font-weight:700;
+    font-style:normal;
+    font-size: clamp(34px, 5.4vw, 54px);
+    line-height:1.04;
+    letter-spacing:-0.01em;
+    margin:0 0 18px;
+    text-transform:uppercase;
+  }
+  h1 em{
+    font-style:normal;
+    color: var(--amber);
+  }
+  .dek{
+    font-size:17px;
+    color: var(--paper-dim);
+    max-width: 640px;
+    margin:0;
+  }
+  .hero-stats{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+    gap:1px;
+    margin-top:44px;
+    background: var(--line);
+    border:1px solid var(--line);
+  }
+  .hstat{
+    background: var(--asphalt-2);
+    padding:18px 16px;
+  }
+  .hstat .n{
+    font-family:'JetBrains Mono', monospace;
+    font-size:26px;
+    font-weight:600;
+    color:var(--paper);
+  }
+  .hstat .n small{font-size:13px; color:var(--paper-faint); font-weight:400;}
+  .hstat .l{
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color: var(--paper-faint);
+    margin-top:6px;
+  }
+
+  /* sections */
+  section{padding: 54px 0; border-bottom:1px solid var(--line);}
+  section:last-of-type{border-bottom:none;}
+  .kicker{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color: var(--amber-dim);
+    margin-bottom:10px;
+  }
+  h2{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:600;
+    font-size: clamp(22px, 3vw, 30px);
+    letter-spacing:-0.005em;
+    margin: 0 0 18px;
+  }
+  h3{
+    font-family:'Oswald', sans-serif;
+    text-transform:uppercase;
+    font-weight:500;
+    font-size:16.5px;
+    letter-spacing:.02em;
+    color:var(--amber);
+    margin: 30px 0 10px;
+  }
+  p{color: var(--paper-dim); margin: 0 0 16px; max-width:680px;}
+  p strong{color:var(--paper); font-weight:600;}
+  .lede{font-size:16.5px;}
+  a{color:var(--amber);}
+
+  .callout{
+    background: var(--panel);
+    border-left: 3px solid var(--amber);
+    padding: 20px 24px;
+    margin: 26px 0;
+    font-size: 14.5px;
+  }
+  .callout .callout-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color: var(--amber);
+    margin-bottom:10px;
+  }
+  .callout p{margin-bottom:10px; color:var(--paper-dim); max-width:none;}
+  .callout p:last-child{margin-bottom:0;}
+  .callout code{
+    font-family:'JetBrains Mono', monospace;
+    background:#0000003a;
+    padding:1px 6px;
+    border-radius:3px;
+    font-size:13px;
+    color:var(--paper);
+  }
+
+  .chart-panel{
+    background: var(--panel);
+    padding: 26px 22px 14px;
+    margin: 24px 0 6px;
+    border: 1px solid var(--line);
+  }
+  .chart-panel .chart-label{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color: var(--paper-faint);
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+  }
+  canvas{max-width:100%;}
+
+  .zone-legend{
+    display:flex; flex-wrap:wrap; gap:18px;
+    font-size:12px; color:var(--paper-faint);
+    margin: 16px 2px 0;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .zone-legend span{display:flex; align-items:center; gap:7px;}
+  .zone-legend i{width:11px;height:11px;display:inline-block;border-radius:2px;}
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin: 22px 0;
+    font-size:13.5px;
+  }
+  th,td{
+    text-align:left;
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  th{
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--paper-faint);
+    font-weight:500;
+  }
+  td{color:var(--paper-dim);}
+  td.num, th.num{text-align:right; font-family:'JetBrains Mono', monospace;}
+  tr:hover td{color:var(--paper); background:#ffffff05;}
+  .tag{
+    display:inline-block;
+    font-family:'JetBrains Mono', monospace;
+    font-size:10.5px;
+    padding:2px 7px;
+    border-radius:3px;
+    letter-spacing:.03em;
+  }
+  .tag.hi{background:#C4432E22; color:#E38470;}
+  .tag.mid{background:#E8A93B22; color:#E8A93B;}
+  .tag.lo{background:#6E9B6A22; color:#8DBB89;}
+
+  .grid-2{display:grid; grid-template-columns: 1fr 1fr; gap:28px;}
+  @media (max-width:720px){.grid-2{grid-template-columns:1fr;} .hero-stats{grid-template-columns:repeat(2,1fr);}}
+
+  .finding{
+    display:flex;
+    gap:16px;
+    margin: 22px 0;
+  }
+  .finding .fnum{
+    font-family:'Oswald', sans-serif;
+    font-size:34px;
+    font-weight:700;
+    color: var(--amber-dim);
+    line-height:1;
+    min-width:44px;
+  }
+  .finding .ftext p{margin-bottom:6px;}
+
+  footer{
+    padding-top:40px;
+    color: var(--paper-faint);
+    font-size:12.5px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  footer a{color:var(--paper-faint); text-decoration underline;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">NASCAR Cup Series &middot; 1949&ndash;2016 &middot; Manufacturer Analytics</div>
+    <h1>How <em>concentrated</em><br>is stock car racing?</h1>
+    <p class="dek">A Herfindahl&ndash;Hirschman Index built on 68 championship seasons, tracking whether NASCAR's manufacturer field has been wide open or dominated by one or two automakers &mdash; and whether that pattern lines up with rule changes and manufacturer exits.</p>
+
+    <div class="hero-stats">
+      <div class="hstat"><div class="n">68</div><div class="l">Championship seasons</div></div>
+      <div class="hstat"><div class="n">11</div><div class="l">Manufacturers, all-time</div></div>
+      <div class="hstat"><div class="n">2,200<small> &ndash; 6,800</small></div><div class="l">HHI range across decades</div></div>
+      <div class="hstat"><div class="n">1990s</div><div class="l">Most concentrated decade</div></div>
+    </div>
+  </div>
+
+  <section>
+    <div class="kicker">Method</div>
+    <h2>The Index, in plain terms</h2>
+    <p class="lede">The Herfindahl&ndash;Hirschman Index is the standard concentration measure in antitrust economics, and it maps onto sports parity questions almost without modification. For each decade, take every manufacturer's share of championships, square each share, and sum:</p>
+    <div class="callout">
+      <div class="callout-title">HHI formula</div>
+      <p style="font-family:'JetBrains Mono',monospace; color:var(--paper); font-size:14px;">HHI = &Sigma; (market share<sub>i</sub> &times; 100)&sup2;</p>
+      <p>Scale runs 0&ndash;10,000. A decade split evenly across five manufacturers scores 2,000; a decade owned by one manufacturer scores 10,000. I'm using the convention regulators use for merger review: <strong>below 1,500 is unconcentrated</strong>, <strong>1,500&ndash;2,500 is moderately concentrated</strong>, <strong>above 2,500 is highly concentrated</strong>. I also report the "effective number of manufacturers" (10,000 / HHI) &mdash; a more intuitive read on how many automakers a decade <em>felt like</em> it had, competitively.</p>
+    </div>
+
+    <div class="callout" style="border-left-color:var(--red);">
+      <div class="callout-title" style="color:#E38470;">Data quirk &mdash; how I handled it</div>
+      <p>18 of the 68 championship seasons have more than one row: the champion drove different manufacturers' cars within the same season (car-number and manufacturer swaps were common before teams settled into exclusive factory deals). None of these seasons had a tie for most wins, so I attributed each title to whichever manufacturer that champion won the most races with that year &mdash; the car they actually won <em>in</em>, not just started the season in. Notably, <strong>every multi-manufacturer season falls at or before 1983</strong>; after that, championship-winning drivers stuck with one manufacturer for the full year, which is itself a small signal of the sport professionalizing and factory deals solidifying.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">The Index over time</div>
+    <h2>Wide open in the '60s, locked up in the '90s</h2>
+    <p class="lede">Concentration was never actually low by regulatory standards &mdash; NASCAR's championship has always leaned on a small handful of manufacturers &mdash; but there's a clear arc: a genuinely competitive mid-century trough, a steady climb through the '70s and '80s, a sharp peak in the 1990s, and a partial, incomplete recovery after that.</p>
+
+    <div class="chart-panel">
+      <div class="chart-label"><span>HHI by decade (championship wins)</span><span>0&ndash;10,000 scale</span></div>
+      <canvas id="hhiChart" height="300"></canvas>
+      <div class="zone-legend">
+        <span><i style="background:#6E9B6A55;"></i>Unconcentrated (&lt;1,500)</span>
+        <span><i style="background:#E8A93B45;"></i>Moderate (1,500&ndash;2,500)</span>
+        <span><i style="background:#C4432E30;"></i>Highly concentrated (&gt;2,500)</span>
+      </div>
+    </div>
+
+    <table>
+      <thead><tr>
+        <th>Decade</th><th class="num">Titles</th><th class="num">Manufacturers</th>
+        <th class="num">HHI</th><th class="num">Effective&nbsp;N</th><th>Leader</th><th class="num">Leader share</th><th>Zone</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>1940s <span style="color:var(--paper-faint)">(n=1)</span></td><td class="num">1</td><td class="num">1</td><td class="num">10,000</td><td class="num">1.00</td><td>Oldsmobile</td><td class="num">100%</td><td><span class="tag hi">n/a &mdash; single season</span></td></tr>
+        <tr><td>1950s</td><td class="num">10</td><td class="num">5</td><td class="num">2,400</td><td class="num">4.17</td><td>Chrysler / Hudson (tied, 3 ea.)</td><td class="num">30%</td><td><span class="tag mid">Moderate</span></td></tr>
+        <tr><td>1960s</td><td class="num">10</td><td class="num">5</td><td class="num">2,200</td><td class="num">4.55</td><td>Ford</td><td class="num">30%</td><td><span class="tag mid">Moderate</span></td></tr>
+        <tr><td>1970s</td><td class="num">10</td><td class="num">4</td><td class="num">3,000</td><td class="num">3.33</td><td>Chevrolet</td><td class="num">40%</td><td><span class="tag hi">Highly concentrated</span></td></tr>
+        <tr><td>1980s</td><td class="num">10</td><td class="num">4</td><td class="num">3,600</td><td class="num">2.78</td><td>Chevrolet</td><td class="num">50%</td><td><span class="tag hi">Highly concentrated</span></td></tr>
+        <tr><td>1990s</td><td class="num">10</td><td class="num">2</td><td class="num">6,800</td><td class="num">1.47</td><td>Chevrolet</td><td class="num">80%</td><td><span class="tag hi">Near-duopoly</span></td></tr>
+        <tr><td>2000s</td><td class="num">10</td><td class="num">3</td><td class="num">4,400</td><td class="num">2.27</td><td>Chevrolet</td><td class="num">60%</td><td><span class="tag hi">Highly concentrated</span></td></tr>
+        <tr><td>2010s <span style="color:var(--paper-faint)">(n=7, thru '16)</span></td><td class="num">7</td><td class="num">3</td><td class="num">5,510</td><td class="num">1.81</td><td>Chevrolet</td><td class="num">71%</td><td><span class="tag hi">Highly concentrated</span></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:13px; color:var(--paper-faint);">The 1940s row is a single season (1949 &mdash; NASCAR's inaugural year), so its HHI of 10,000 is a data-availability artifact, not a real "duopoly." I've excluded it from the trend narrative below. The 2010s row covers only 2010&ndash;2016, the range of this dataset, so treat it as a partial decade.</p>
+  </section>
+
+  <section>
+    <div class="kicker">Composition</div>
+    <h2>What the concentration is made of</h2>
+    <p class="lede">The HHI number hides <em>who</em> is winning. Laid out by manufacturer, three separate stories are visible: the mid-century era genuinely split between five brands (several now defunct), a long Chevrolet ascent, and a shrinking field of entrants as manufacturers consolidated or exited altogether.</p>
+    <div class="chart-panel">
+      <div class="chart-label"><span>Championships per decade, by manufacturer</span><span>stacked count</span></div>
+      <canvas id="stackChart" height="320"></canvas>
+    </div>
+  </section>
+
+  <section>
+    <div class="kicker">The story</div>
+    <h2>Does parity track anything real?</h2>
+
+    <div class="finding">
+      <div class="fnum">01</div>
+      <div class="ftext">
+        <h3 style="margin-top:0;">The '60s were the genuinely competitive era</h3>
+        <p>The lowest HHI in the dataset (2,200) falls in the 1960s, when five manufacturers &mdash; Ford, Chevrolet, Plymouth, Pontiac, and Dodge &mdash; split titles with no single brand taking more than 30%. This is also the era right after manufacturers began providing serious factory support (mid-1960s), so more automakers were funding competitive programs simultaneously than at almost any other point in the sport's history. Wide-open competition and broad manufacturer investment arrived together.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="fnum">02</div>
+      <div class="ftext">
+        <h3 style="margin-top:0;">Every manufacturer exit shows up as a concentration spike</h3>
+        <p>Concentration climbs almost in lockstep with the shrinking manufacturer field. Plymouth pulled factory support after 1977; Mercury and the first-generation Dodge program left in the early '80s; by 1991 GM alone was still fielding four brands (Chevrolet, Pontiac, Oldsmobile, Buick), but Oldsmobile and Buick were gone from the grid within three years. That consolidation lands squarely inside the 1990s &mdash; the decade where HHI peaks at 6,800 and the "effective number of manufacturers" collapses to 1.47, i.e. a near-duopoly between Chevrolet (80% of titles) and Ford. Fewer manufacturers funding programs isn't just correlated with higher concentration here &mdash; it's mechanically most of the explanation.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="fnum">03</div>
+      <div class="ftext">
+        <h3 style="margin-top:0;">New entrants only partly undid it</h3>
+        <p>Pontiac's championship contention in the 2000s and Toyota's arrival in 2007 (the first new manufacturer since 1971) both nudge HHI back down &mdash; the 2000s reading (4,400) is meaningfully lower than the 1990s peak. But the recovery is partial, not a return to '60s-style parity: Chevrolet has taken at least 50% of titles in every decade since the 1980s. Adding a competitor lowers concentration; it doesn't reset it.</p>
+      </div>
+    </div>
+
+    <div class="finding">
+      <div class="fnum">04</div>
+      <div class="ftext">
+        <h3 style="margin-top:0;">The trend through the end of this dataset: not toward parity</h3>
+        <p>Within the window this data covers, competitive balance never returns to '60s levels. The 2010s (2010&ndash;2016 only) sit at 5,510 &mdash; higher than the 2000s, driven by Chevrolet winning 5 of 7 titles and only Dodge and Toyota (one apiece) breaking through. That's a partial decade, so it's a soft read, but the direction is toward re-concentration, not away from it, right up to where the data stops.</p>
+      </div>
+    </div>
+
+    <div class="callout" style="border-left-color:#4F8FC0;">
+      <div class="callout-title" style="color:#7BAAD1;">Beyond the dataset</div>
+      <p>This dataset ends in 2016, so the "is it trending toward more balance <em>recently</em>" question can only be answered up to that point from the numbers above. For context on what came after: Dodge had already exited after 2012 (still visible in this data), and Chevrolet went on to win five consecutive Cup titles from 2021 through 2025, per NASCAR manufacturer-standings records<sup>[1]</sup> &mdash; which would push a fully updated 2020s HHI toward the highest concentration in series history, extending Finding 4 rather than reversing it. I haven't built that into the index above since I don't have full manufacturer win data for 2017&ndash;2025 in this dataset, but it's worth flagging for anyone extending this analysis.</p>
+    </div>
+  </section>
+
+  <footer>
+    [1] Manufacturer standings context via Grokipedia, "List of NASCAR Manufacturers' Champions." &middot; Source data: NASCAR Champion History Dataset, 1949&ndash;2016 (68 championship seasons, deduplicated by primary winning manufacturer). &middot; Analysis &amp; HHI methodology: standard concentration-ratio technique from industrial economics, applied to championship-title market share.
+  </footer>
+
+</div>
+
+<script>
+const decades = ['1950s','1960s','1970s','1980s','1990s','2000s','2010s*'];
+const hhiVals = [2400, 2200, 3000, 3600, 6800, 4400, 5510.2];
+
+const zoneBg = {
+  id: 'zoneBg',
+  beforeDraw(chart) {
+    const {ctx, chartArea:{left,right}, scales:{y}} = chart;
+    ctx.save();
+    const zones = [
+      [0,1500,'#6E9B6A22'],
+      [1500,2500,'#E8A93B1c'],
+      [2500,10000,'#C4432E18']
+    ];
+    zones.forEach(([a,b,color])=>{
+      const yb = y.getPixelForValue(a);
+      const yt = y.getPixelForValue(b);
+      ctx.fillStyle = color;
+      ctx.fillRect(left, yt, right-left, yb-yt);
+    });
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('hhiChart'), {
+  type: 'line',
+  data: {
+    labels: decades,
+    datasets: [{
+      label: 'HHI',
+      data: hhiVals,
+      borderColor: '#E8A93B',
+      backgroundColor: '#E8A93B',
+      pointRadius: 5,
+      pointHoverRadius: 7,
+      pointBackgroundColor: '#14161B',
+      pointBorderColor: '#E8A93B',
+      pointBorderWidth: 2,
+      borderWidth: 2.5,
+      tension: 0.25,
+      fill: false,
+    }]
+  },
+  options: {
+    responsive:true,
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#20232B',
+        titleColor:'#F0EDE4',
+        bodyColor:'#B9B6AC',
+        borderColor:'#34394480',
+        borderWidth:1,
+        padding:10,
+        callbacks:{
+          label: (ctx)=> 'HHI: ' + ctx.parsed.y.toLocaleString()
+        }
+      }
+    },
+    scales:{
+      y:{
+        min:0, max:10000,
+        grid:{color:'#34394440'},
+        ticks:{color:'#7C7A73', font:{family:"'JetBrains Mono', monospace", size:11}}
+      },
+      x:{
+        grid:{display:false},
+        ticks:{color:'#B9B6AC', font:{family:"'JetBrains Mono', monospace", size:12}}
+      }
+    }
+  },
+  plugins:[zoneBg]
+});
+
+const stackLabels = ['1950s','1960s','1970s','1980s','1990s','2000s','2010s*'];
+const manuData = {
+  Chevrolet: [1,2,4,5,8,6,5],
+  Ford:      [0,3,0,1,2,2,0],
+  Chrysler:  [3,0,0,0,0,0,0],
+  Hudson:    [3,0,0,0,0,0,0],
+  Oldsmobile:[2,0,1,0,0,0,0],
+  Plymouth:  [1,2,2,0,0,0,0],
+  Dodge:     [0,1,3,0,0,0,1],
+  Pontiac:   [0,2,0,1,0,2,0],
+  Buick:     [0,0,0,3,0,0,0],
+  Toyota:    [0,0,0,0,0,0,1],
+};
+const manuColors = {
+  Chevrolet:'#E8A93B', Ford:'#4F8FC0', Chrysler:'#8D6A9F', Hudson:'#7C7A73',
+  Oldsmobile:'#5C7A6E', Plymouth:'#A85C4A', Dodge:'#C4432E', Pontiac:'#6E9B6A',
+  Buick:'#B9B6AC', Toyota:'#D65D5D'
+};
+
+new Chart(document.getElementById('stackChart'), {
+  type:'bar',
+  data:{
+    labels: stackLabels,
+    datasets: Object.keys(manuData).map(m=>({
+      label:m,
+      data:manuData[m],
+      backgroundColor: manuColors[m],
+      borderWidth:0,
+    }))
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{
+        position:'bottom',
+        labels:{color:'#B9B6AC', font:{family:"'JetBrains Mono', monospace", size:11}, boxWidth:12, padding:14}
+      },
+      tooltip:{
+        backgroundColor:'#20232B', titleColor:'#F0EDE4', bodyColor:'#B9B6AC',
+        borderColor:'#34394480', borderWidth:1, padding:10
+      }
+    },
+    scales:{
+      x:{stacked:true, grid:{display:false}, ticks:{color:'#B9B6AC', font:{family:"'JetBrains Mono', monospace", size:12}}},
+      y:{stacked:true, max:10, grid:{color:'#34394440'}, ticks:{color:'#7C7A73', stepSize:2, font:{family:"'JetBrains Mono', monospace", size:11}}}
+    }
+  }
+});
+</script>
+</body>
+</html>
